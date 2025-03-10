@@ -47,7 +47,14 @@ function updatePersonsList() {
     // Apply filters
     let filteredPersons = persons;
     
-    // Check if any filters are active
+    // Filter by name if name filter is active
+    if (nameFilter && nameFilter !== '') {
+        filteredPersons = filteredPersons.filter(person => 
+            person.name.toLowerCase().includes(nameFilter.toLowerCase())
+        );
+    }
+    
+    // Check if any role filters are active
     const anyFilterActive = 
         activeFilters.elder || 
         activeFilters.servant || 
@@ -55,7 +62,7 @@ function updatePersonsList() {
         activeFilters.familyHead;
         
     if (anyFilterActive) {
-        filteredPersons = persons.filter(person => 
+        filteredPersons = filteredPersons.filter(person => 
             (activeFilters.elder && person.elder) ||
             (activeFilters.servant && person.servant) ||
             (activeFilters.pioneer && person.pioneer) ||
@@ -107,6 +114,7 @@ function showPersonModal(personData = null) {
     const title = document.getElementById('modal-title');
     const nameInput = document.getElementById('person-name');
     const groupSelect = document.getElementById('person-group');
+    const travelTimesButton = document.getElementById('show-travel-times');
     
     const elderCheckbox = document.getElementById('person-elder');
     const servantCheckbox = document.getElementById('person-servant');
@@ -117,6 +125,19 @@ function showPersonModal(personData = null) {
     
     // Update modal title
     title.textContent = personData ? 'Edit Person' : 'Add Person';
+    
+    // Show/hide travel time button based on whether we're editing or adding
+    travelTimesButton.style.display = personData ? 'block' : 'none';
+    
+    // Set up travel time button click handler
+    if (personData) {
+        travelTimesButton.onclick = () => {
+            // Close the person modal
+            modal.style.display = 'none';
+            // Open the travel time modal
+            showTravelTimeModal(personData);
+        };
+    }
     
     // Populate form if editing
     if (personData) {

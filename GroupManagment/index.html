@@ -30,6 +30,12 @@
             
             <div id="people-tab" class="tab-content active">
                 <div class="filter-controls">
+                    <!-- Name filter -->
+                    <div class="filter-section">
+                        <label>Filter by Name:</label>
+                        <input type="text" id="name-filter" placeholder="Search by name..." class="name-filter-input">
+                    </div>
+                    
                     <div class="filter-section">
                         <label>Filter by Role:</label>
                         <div class="checkbox-item">
@@ -72,6 +78,35 @@
             </div>
             <button id="create-group">Create Group</button>
             <button id="auto-group">Auto Group by Area</button>
+        </div>
+        
+        <!-- Import/Export Section -->
+        <div class="import-export-controls">
+            <h3>Data Management</h3>
+            <div class="import-export-buttons">
+                <button id="export-data">Export Data</button>
+                <button id="import-data">Import Data</button>
+                <input type="file" id="import-file-input" accept=".json" style="display: none;">
+            </div>
+        </div>
+        
+        <!-- Visibility Toggle Controls -->
+        <div class="visibility-controls">
+            <h3>Show/Hide Elements</h3>
+            <div class="toggle-section">
+                <div class="toggle-item">
+                    <input type="checkbox" id="toggle-people" checked>
+                    <label for="toggle-people">Show People</label>
+                </div>
+                <div class="toggle-item">
+                    <input type="checkbox" id="toggle-meetings" checked>
+                    <label for="toggle-meetings">Show Meeting Points</label>
+                </div>
+                <div class="toggle-item">
+                    <input type="checkbox" id="toggle-groups" checked>
+                    <label for="toggle-groups">Show Group Colors</label>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -117,8 +152,12 @@
                 <option value="">No Group</option>
                 <!-- Groups will be added here -->
             </select>
-            <button id="save-person">Save</button>
-            <button id="cancel-person">Cancel</button>
+            
+            <div class="modal-button-group">
+                <button id="save-person">Save</button>
+                <button id="cancel-person">Cancel</button>
+                <button id="show-travel-times" class="secondary-button">Show Travel Times</button>
+            </div>
         </div>
     </div>
     
@@ -250,6 +289,19 @@
         </div>
     </div>
 
+    <!-- Travel Time Modal -->
+    <div id="travel-time-modal" class="modal">
+        <div class="modal-content travel-time-modal-content">
+            <div class="modal-header">
+                <h3 id="travel-time-modal-title">Travel Times</h3>
+                <button id="close-travel-time" class="close-button">×</button>
+            </div>
+            <div id="travel-time-results" class="travel-time-results">
+                <!-- Travel time results will be inserted here -->
+            </div>
+        </div>
+    </div>
+
     <!-- Load JavaScript files -->
     <script src="js/api-config.js"></script>
     <script src="js/config.js"></script>
@@ -257,6 +309,9 @@
     <script src="js/person.js"></script>
     <script src="js/meeting.js"></script>
     <script src="js/group.js"></script>
+    <script src="js/filter.js"></script>
+    <script src="js/travel-time-routes.js"></script>
+    <script src="js/import-export.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/app-config.js"></script>
     <script src="js/app.js"></script>
@@ -266,7 +321,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Create and append the Google Maps script dynamically
             const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places&callback=initMap`;
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places,geometry&callback=initMap`;
             script.async = true;
             script.defer = true;
             document.body.appendChild(script);

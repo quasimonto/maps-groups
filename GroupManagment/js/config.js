@@ -20,5 +20,5 @@ let groups = [];
 let selectedPerson = null;
 let selectedMeeting = null;
 
-// Constants
-const MAX_AUTO_GROUP_DISTANCE = 0.01; // Approximately 1km
+// Variable to store the auto group distance (set in app-config.js)
+let MAX_AUTO_GROUP_DISTANCE = 0.01; // Approximately 1km

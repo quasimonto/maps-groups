@@ -49,4 +49,7 @@ function initMap() {
     // Set up UI event listeners
     setupEventListeners();
     setupTabNavigation();
+    
+    // Initialize travel time services
+    initTravelTimeServices();
 }

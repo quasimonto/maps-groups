@@ -39,7 +39,16 @@ function updateMeetingsList() {
     const meetingList = document.getElementById('meeting-list');
     meetingList.innerHTML = '';
     
-    meetingPoints.forEach(meetingData => {
+    // Apply name filter if active
+    let filteredMeetings = meetingPoints;
+    
+    if (nameFilter && nameFilter !== '') {
+        filteredMeetings = filteredMeetings.filter(meeting => 
+            meeting.name.toLowerCase().includes(nameFilter.toLowerCase())
+        );
+    }
+    
+    filteredMeetings.forEach(meetingData => {
         const item = document.createElement('div');
         item.className = 'meeting-item';
         
@@ -63,7 +72,6 @@ function updateMeetingsList() {
         meetingList.appendChild(item);
     });
 }
-
 // Remove a meeting point
 function removeMeetingPoint(meetingId) {
     const meetingIndex = meetingPoints.findIndex(m => m.id === meetingId);

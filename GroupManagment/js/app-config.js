@@ -31,6 +31,7 @@ const DEFAULT_CONFIG = {
 // Current configuration (start with defaults)
 let appConfig = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
 
+
 // Try to load saved configuration from localStorage
 function loadConfig() {
     const savedConfig = localStorage.getItem('mapAppConfig');
