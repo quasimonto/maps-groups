@@ -189,41 +189,89 @@ function setupEventListeners() {
 
 // Add this helper function to ui.js:
 function addAccessibilityAttributes() {
-    // Add ARIA labels to buttons and controls
-    document.getElementById('add-person').setAttribute('aria-label', 'Add Person');
-    document.getElementById('add-meeting').setAttribute('aria-label', 'Add Meeting Point');
-    document.getElementById('create-group').setAttribute('aria-label', 'Create Group');
-    document.getElementById('auto-group').setAttribute('aria-label', 'Auto Group by Area');
-    document.getElementById('export-data').setAttribute('aria-label', 'Export Data');
-    document.getElementById('import-data').setAttribute('aria-label', 'Import Data');
+    // Add ARIA labels to buttons that exist
+    const addPersonBtn = document.getElementById('add-person');
+    if (addPersonBtn) {
+        addPersonBtn.setAttribute('aria-label', 'Add Person');
+    }
+    
+    const addMeetingBtn = document.getElementById('add-meeting');
+    if (addMeetingBtn) {
+        addMeetingBtn.setAttribute('aria-label', 'Add Meeting Point');
+    }
+    
+    const createGroupBtn = document.getElementById('create-group');
+    if (createGroupBtn) {
+        createGroupBtn.setAttribute('aria-label', 'Create Group');
+    }
+    
+    // Check for auto-group-meeting instead of auto-group
+    const autoGroupBtn = document.getElementById('auto-group-meeting');
+    if (autoGroupBtn) {
+        autoGroupBtn.setAttribute('aria-label', 'Auto Group by Meeting Points');
+    }
+    
+    const exportDataBtn = document.getElementById('export-data');
+    if (exportDataBtn) {
+        exportDataBtn.setAttribute('aria-label', 'Export Data');
+    }
+    
+    const importDataBtn = document.getElementById('import-data');
+    if (importDataBtn) {
+        importDataBtn.setAttribute('aria-label', 'Import Data');
+    }
     
     // Add roles to regions
-    document.getElementById('sidebar').setAttribute('role', 'complementary');
-    document.getElementById('map').setAttribute('role', 'application');
-    document.getElementById('map').setAttribute('aria-label', 'Map showing people and meeting locations');
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+        sidebar.setAttribute('role', 'complementary');
+    }
+    
+    const map = document.getElementById('map');
+    if (map) {
+        map.setAttribute('role', 'application');
+        map.setAttribute('aria-label', 'Map showing people and meeting locations');
+    }
     
     // Add roles to lists
-    document.getElementById('person-list').setAttribute('role', 'list');
-    document.getElementById('meeting-list').setAttribute('role', 'list');
-    document.getElementById('group-list').setAttribute('role', 'list');
+    const personList = document.getElementById('person-list');
+    if (personList) {
+        personList.setAttribute('role', 'list');
+    }
+    
+    const meetingList = document.getElementById('meeting-list');
+    if (meetingList) {
+        meetingList.setAttribute('role', 'list');
+    }
+    
+    const groupList = document.getElementById('group-list');
+    if (groupList) {
+        groupList.setAttribute('role', 'list');
+    }
     
     // Add labels to search input
     const searchInput = document.getElementById('search-input');
-    searchInput.setAttribute('aria-label', 'Search for a location');
+    if (searchInput) {
+        searchInput.setAttribute('aria-label', 'Search for a location');
+    }
     
     // Add aria-expanded attributes to tab buttons
     const tabButtons = document.querySelectorAll('.tab-button');
     tabButtons.forEach(button => {
         const tabId = button.getAttribute('data-tab');
-        button.setAttribute('aria-controls', tabId);
-        button.setAttribute('role', 'tab');
-        button.setAttribute('aria-expanded', button.classList.contains('active') ? 'true' : 'false');
+        if (tabId) {
+            button.setAttribute('aria-controls', tabId);
+            button.setAttribute('role', 'tab');
+            button.setAttribute('aria-expanded', button.classList.contains('active') ? 'true' : 'false');
+        }
     });
     
     // Add roles to tab content
     document.querySelectorAll('.tab-content').forEach(content => {
-        content.setAttribute('role', 'tabpanel');
-        content.setAttribute('aria-labelledby', content.id);
+        if (content.id) {
+            content.setAttribute('role', 'tabpanel');
+            content.setAttribute('aria-labelledby', content.id);
+        }
     });
 }
 
