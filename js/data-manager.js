@@ -496,15 +496,10 @@ function downloadCsv(csv, filename) {
     }, 0);
 }
 
-// Import data - preview file
+
+// Import preview function
 function previewImportFile(file, importType) {
     console.log('Previewing import file:', file.name);
-    
-    // Check if file is JSON
-    if (!file.name.endsWith('.json')) {
-        showNotification('Only JSON files are supported for import', 'warning');
-        return;
-    }
     
     // Read file
     const reader = new FileReader();
@@ -520,7 +515,7 @@ function previewImportFile(file, importType) {
     reader.readAsText(file);
 }
 
-// Show import preview
+// Updated showImportPreview function to handle all data types
 function showImportPreview(importedData, importType) {
     // Get preview container
     const previewContainer = document.getElementById('import-preview-container');
@@ -535,23 +530,26 @@ function showImportPreview(importedData, importType) {
     let hasData = false;
     
     // Process people data
-    if ((importType === 'all' || importType === 'people') && importedData.persons) {
+    if ((importType === 'all' || importType === 'people') && 
+        (importedData.persons || importedData.people)) {
+        
         hasData = true;
-        const personsCount = importedData.persons.length;
+        const peopleData = importedData.persons || importedData.people;
+        const peopleCount = peopleData.length;
         
         const previewItem = document.createElement('div');
         previewItem.className = 'import-preview-item';
         previewItem.innerHTML = `
             <div class="import-preview-header">
                 <h4>People</h4>
-                <span class="import-preview-count">${personsCount} records</span>
+                <span class="import-preview-count">${peopleCount} records</span>
             </div>
             <div class="import-preview-details">
                 <ul>
-                    ${importedData.persons.slice(0, 5).map(person => 
-                        `<li>${person.name} ${person.elder ? '(Elder)' : ''} ${person.pioneer ? '(Pioneer)' : ''}</li>`
+                    ${peopleData.slice(0, 5).map(person => 
+                        `<li>${person.name || "Unnamed person"}${person.elder ? ' (Elder)' : ''}${person.servant ? ' (Servant)' : ''}${person.pioneer ? ' (Pioneer)' : ''}</li>`
                     ).join('')}
-                    ${importedData.persons.length > 5 ? `<li>...and ${importedData.persons.length - 5} more</li>` : ''}
+                    ${peopleData.length > 5 ? `<li>...and ${peopleData.length - 5} more</li>` : ''}
                 </ul>
             </div>
         `;
@@ -559,9 +557,12 @@ function showImportPreview(importedData, importType) {
     }
     
     // Process meeting points data
-    if ((importType === 'all' || importType === 'meetings') && importedData.meetingPoints) {
+    if ((importType === 'all' || importType === 'meetings') && 
+        (importedData.meetingPoints || importedData.meetingpoints)) {
+        
         hasData = true;
-        const meetingsCount = importedData.meetingPoints.length;
+        const meetingsData = importedData.meetingPoints || importedData.meetingpoints;
+        const meetingsCount = meetingsData.length;
         
         const previewItem = document.createElement('div');
         previewItem.className = 'import-preview-item';
@@ -572,10 +573,10 @@ function showImportPreview(importedData, importType) {
             </div>
             <div class="import-preview-details">
                 <ul>
-                    ${importedData.meetingPoints.slice(0, 5).map(meeting => 
-                        `<li>${meeting.name}</li>`
+                    ${meetingsData.slice(0, 5).map(meeting => 
+                        `<li>${meeting.name || "Unnamed meeting point"}</li>`
                     ).join('')}
-                    ${importedData.meetingPoints.length > 5 ? `<li>...and ${importedData.meetingPoints.length - 5} more</li>` : ''}
+                    ${meetingsData.length > 5 ? `<li>...and ${meetingsData.length - 5} more</li>` : ''}
                 </ul>
             </div>
         `;
@@ -585,7 +586,8 @@ function showImportPreview(importedData, importType) {
     // Process groups data
     if ((importType === 'all' || importType === 'groups') && importedData.groups) {
         hasData = true;
-        const groupsCount = importedData.groups.length;
+        const groupsData = importedData.groups;
+        const groupsCount = groupsData.length;
         
         const previewItem = document.createElement('div');
         previewItem.className = 'import-preview-item';
@@ -596,10 +598,10 @@ function showImportPreview(importedData, importType) {
             </div>
             <div class="import-preview-details">
                 <ul>
-                    ${importedData.groups.slice(0, 5).map(group => 
-                        `<li>${group.name}</li>`
+                    ${groupsData.slice(0, 5).map(group => 
+                        `<li>${group.name || "Unnamed group"}</li>`
                     ).join('')}
-                    ${importedData.groups.length > 5 ? `<li>...and ${importedData.groups.length - 5} more</li>` : ''}
+                    ${groupsData.length > 5 ? `<li>...and ${groupsData.length - 5} more</li>` : ''}
                 </ul>
             </div>
         `;
@@ -609,7 +611,8 @@ function showImportPreview(importedData, importType) {
     // Process families data
     if ((importType === 'all' || importType === 'families') && importedData.families) {
         hasData = true;
-        const familiesCount = importedData.families.length;
+        const familiesData = importedData.families;
+        const familiesCount = familiesData.length;
         
         const previewItem = document.createElement('div');
         previewItem.className = 'import-preview-item';
@@ -620,10 +623,10 @@ function showImportPreview(importedData, importType) {
             </div>
             <div class="import-preview-details">
                 <ul>
-                    ${importedData.families.slice(0, 5).map(family => 
-                        `<li>${family.name}</li>`
+                    ${familiesData.slice(0, 5).map(family => 
+                        `<li>${family.name || "Unnamed family"}</li>`
                     ).join('')}
-                    ${importedData.families.length > 5 ? `<li>...and ${importedData.families.length - 5} more</li>` : ''}
+                    ${familiesData.length > 5 ? `<li>...and ${familiesData.length - 5} more</li>` : ''}
                 </ul>
             </div>
         `;
@@ -648,7 +651,7 @@ function showImportPreview(importedData, importType) {
     window.importedData = importedData;
 }
 
-// Import data - confirm import
+// Confirm import
 function confirmImport() {
     console.log('Confirming import');
     
@@ -687,58 +690,28 @@ function confirmImport() {
     }
 }
 
-// Process import data
+
+
+// Update the processImport function in data-manager.js to ensure meeting points are properly processed
+
 function processImport(importedData, importType, importOverwrite, importMerge) {
-    // Process people data
-    if ((importType === 'all' || importType === 'people') && importedData.persons) {
-        if (importOverwrite) {
-            // Clear existing people (remove markers first)
-            window.persons.forEach(person => {
-                if (person.marker) {
-                    person.marker.setMap(null);
-                }
-            });
-            
-            // Clear array
-            window.persons = [];
-        }
-        
-        // Process imported people
-        importedData.persons.forEach(importedPerson => {
-            if (importMerge) {
-                // Check if person already exists
-                const existingPersonIndex = window.persons.findIndex(p => p.id === importedPerson.id);
-                
-                if (existingPersonIndex !== -1) {
-                    // Update existing person
-                    const existingPerson = window.persons[existingPersonIndex];
-                    const marker = existingPerson.marker;
-                    
-                    // Preserve marker reference and update all other properties
-                    window.persons[existingPersonIndex] = { 
-                        ...importedPerson,
-                        marker
-                    };
-                    
-                    // Update marker position if needed
-                    if (marker && (importedPerson.lat !== existingPerson.lat || 
-                                  importedPerson.lng !== existingPerson.lng)) {
-                        const position = new google.maps.LatLng(importedPerson.lat, importedPerson.lng);
-                        marker.setPosition(position);
-                    }
-                } else {
-                    // Add as new person (marker will be created when map is ready)
-                    window.persons.push(importedPerson);
-                }
-            } else {
-                // Add as new person
-                window.persons.push(importedPerson);
-            }
-        });
-    }
+    console.log("Processing import:", importType, importOverwrite, importMerge);
+    console.log("Imported data:", importedData);
     
-    // Process meeting points data
-    if ((importType === 'all' || importType === 'meetings') && importedData.meetingPoints) {
+    // Initialize arrays if they don't exist
+    if (!window.persons) window.persons = [];
+    if (!window.meetingPoints) window.meetingPoints = [];
+    if (!window.groups) window.groups = [];
+    if (!window.families) window.families = [];
+    
+    // ======== PROCESS MEETING POINTS ========
+    if ((importType === 'all' || importType === 'meetings') && 
+        (importedData.meetingPoints || importedData.meetingpoints)) {
+        
+        // Handle possible variations in property naming
+        const meetingPointsData = importedData.meetingPoints || importedData.meetingpoints || [];
+        console.log(`Processing ${meetingPointsData.length} meeting points`);
+        
         if (importOverwrite) {
             // Clear existing meeting points (remove markers first)
             window.meetingPoints.forEach(meeting => {
@@ -749,112 +722,264 @@ function processImport(importedData, importType, importOverwrite, importMerge) {
             
             // Clear array
             window.meetingPoints = [];
+            console.log("Cleared existing meeting points");
         }
         
         // Process imported meeting points
-        importedData.meetingPoints.forEach(importedMeeting => {
-            if (importMerge) {
-                // Check if meeting already exists
-                const existingMeetingIndex = window.meetingPoints.findIndex(m => m.id === importedMeeting.id);
-                
-                if (existingMeetingIndex !== -1) {
-                    // Update existing meeting
-                    const existingMeeting = window.meetingPoints[existingMeetingIndex];
-                    const marker = existingMeeting.marker;
+        meetingPointsData.forEach(importedMeeting => {
+            try {
+                if (importMerge) {
+                    // Check if meeting already exists
+                    const existingMeetingIndex = window.meetingPoints.findIndex(m => m.id === importedMeeting.id);
                     
-                    // Preserve marker reference and update all other properties
-                    window.meetingPoints[existingMeetingIndex] = { 
-                        ...importedMeeting,
-                        marker
-                    };
-                    
-                    // Update marker position if needed
-                    if (marker && (importedMeeting.lat !== existingMeeting.lat || 
-                                  importedMeeting.lng !== existingMeeting.lng)) {
-                        const position = new google.maps.LatLng(importedMeeting.lat, importedMeeting.lng);
-                        marker.setPosition(position);
+                    if (existingMeetingIndex !== -1) {
+                        // Update existing meeting
+                        const existingMeeting = window.meetingPoints[existingMeetingIndex];
+                        const marker = existingMeeting.marker;
+                        
+                        // Preserve marker reference and update all other properties
+                        window.meetingPoints[existingMeetingIndex] = { 
+                            ...importedMeeting,
+                            marker
+                        };
+                        
+                        console.log(`Updated existing meeting: ${importedMeeting.name}`);
+                        
+                        // Update marker position if needed
+                        if (marker && (importedMeeting.lat !== existingMeeting.lat || 
+                                      importedMeeting.lng !== existingMeeting.lng)) {
+                            const position = new google.maps.LatLng(importedMeeting.lat, importedMeeting.lng);
+                            marker.setPosition(position);
+                        }
+                    } else {
+                        // Add as new meeting (marker will be created when map is ready)
+                        window.meetingPoints.push(importedMeeting);
+                        console.log(`Added new meeting: ${importedMeeting.name}`);
                     }
                 } else {
-                    // Add as new meeting (marker will be created when map is ready)
+                    // Add as new meeting
                     window.meetingPoints.push(importedMeeting);
+                    console.log(`Added new meeting: ${importedMeeting.name}`);
                 }
-            } else {
-                // Add as new meeting
-                window.meetingPoints.push(importedMeeting);
+            } catch (err) {
+                console.error('Error importing meeting point:', err, importedMeeting);
             }
         });
+        
+        console.log(`After import: ${window.meetingPoints.length} meeting points in total`);
     }
     
-    // Process groups data
+    // ======== PROCESS PERSONS ========
+    if ((importType === 'all' || importType === 'people') && 
+        (importedData.persons || importedData.people)) {
+        
+        const peopleData = importedData.persons || importedData.people || [];
+        console.log(`Processing ${peopleData.length} people`);
+        
+        if (importOverwrite) {
+            // Clear existing people (remove markers first)
+            window.persons.forEach(person => {
+                if (person.marker) {
+                    person.marker.setMap(null);
+                }
+            });
+            
+            // Clear array
+            window.persons = [];
+            console.log("Cleared existing people");
+        }
+        
+        // Process imported people
+        peopleData.forEach(importedPerson => {
+            try {
+                if (importMerge) {
+                    // Check if person already exists
+                    const existingPersonIndex = window.persons.findIndex(p => p.id === importedPerson.id);
+                    
+                    if (existingPersonIndex !== -1) {
+                        // Update existing person
+                        const existingPerson = window.persons[existingPersonIndex];
+                        const marker = existingPerson.marker;
+                        
+                        // Preserve marker reference and update all other properties
+                        window.persons[existingPersonIndex] = { 
+                            ...importedPerson,
+                            marker
+                        };
+                        
+                        console.log(`Updated existing person: ${importedPerson.name}`);
+                        
+                        // Update marker position if needed
+                        if (marker && (importedPerson.lat !== existingPerson.lat || 
+                                      importedPerson.lng !== existingPerson.lng)) {
+                            const position = new google.maps.LatLng(importedPerson.lat, importedPerson.lng);
+                            marker.setPosition(position);
+                        }
+                    } else {
+                        // Add as new person (marker will be created when map is ready)
+                        window.persons.push(importedPerson);
+                        console.log(`Added new person: ${importedPerson.name}`);
+                    }
+                } else {
+                    // Add as new person
+                    window.persons.push(importedPerson);
+                    console.log(`Added new person: ${importedPerson.name}`);
+                }
+            } catch (err) {
+                console.error('Error importing person:', err, importedPerson);
+            }
+        });
+        
+        console.log(`After import: ${window.persons.length} people in total`);
+    }
+    
+    // ======== PROCESS GROUPS ========
     if ((importType === 'all' || importType === 'groups') && importedData.groups) {
+        const groupsData = importedData.groups || [];
+        console.log(`Processing ${groupsData.length} groups`);
+        
         if (importOverwrite) {
             // Clear existing groups
             window.groups = [];
+            console.log("Cleared existing groups");
         }
         
         // Process imported groups
-        importedData.groups.forEach(importedGroup => {
-            if (importMerge) {
-                // Check if group already exists
-                const existingGroupIndex = window.groups.findIndex(g => g.id === importedGroup.id);
-                
-                if (existingGroupIndex !== -1) {
-                    // Update existing group
-                    window.groups[existingGroupIndex] = importedGroup;
+        groupsData.forEach(importedGroup => {
+            try {
+                if (importMerge) {
+                    // Check if group already exists
+                    const existingGroupIndex = window.groups.findIndex(g => g.id === importedGroup.id);
+                    
+                    if (existingGroupIndex !== -1) {
+                        // Update existing group
+                        window.groups[existingGroupIndex] = importedGroup;
+                        console.log(`Updated existing group: ${importedGroup.name}`);
+                    } else {
+                        // Add as new group
+                        window.groups.push(importedGroup);
+                        console.log(`Added new group: ${importedGroup.name}`);
+                    }
                 } else {
                     // Add as new group
                     window.groups.push(importedGroup);
+                    console.log(`Added new group: ${importedGroup.name}`);
                 }
-            } else {
-                // Add as new group
-                window.groups.push(importedGroup);
+            } catch (err) {
+                console.error('Error importing group:', err, importedGroup);
             }
         });
+        
+        console.log(`After import: ${window.groups.length} groups in total`);
     }
     
-    // Process families data
+    // ======== PROCESS FAMILIES ========
     if ((importType === 'all' || importType === 'families') && importedData.families) {
+        const familiesData = importedData.families || [];
+        console.log(`Processing ${familiesData.length} families`);
+        
         if (importOverwrite) {
             // Clear existing families
             window.families = [];
+            console.log("Cleared existing families");
         }
         
         // Process imported families
-        importedData.families.forEach(importedFamily => {
-            if (importMerge) {
-                // Check if family already exists
-                const existingFamilyIndex = window.families.findIndex(f => f.id === importedFamily.id);
-                
-                if (existingFamilyIndex !== -1) {
-                    // Update existing family
-                    window.families[existingFamilyIndex] = importedFamily;
+        familiesData.forEach(importedFamily => {
+            try {
+                if (importMerge) {
+                    // Check if family already exists
+                    const existingFamilyIndex = window.families.findIndex(f => f.id === importedFamily.id);
+                    
+                    if (existingFamilyIndex !== -1) {
+                        // Update existing family
+                        window.families[existingFamilyIndex] = importedFamily;
+                        console.log(`Updated existing family: ${importedFamily.name}`);
+                    } else {
+                        // Add as new family
+                        window.families.push(importedFamily);
+                        console.log(`Added new family: ${importedFamily.name}`);
+                    }
                 } else {
                     // Add as new family
                     window.families.push(importedFamily);
+                    console.log(`Added new family: ${importedFamily.name}`);
                 }
-            } else {
-                // Add as new family
-                window.families.push(importedFamily);
+            } catch (err) {
+                console.error('Error importing family:', err, importedFamily);
             }
         });
+        
+        console.log(`After import: ${window.families.length} families in total`);
     }
     
     // Save data
-    saveData();
+    if (typeof saveData === 'function') {
+        const saveResult = saveData();
+        console.log("Data saved:", saveResult);
+    } else {
+        console.warn("saveData function not found");
+    }
     
     // Create markers for imported data
     createMarkersForImportedData();
     
     // Update UI
+    updateUIAfterImport();
+    
+    // Show success message
+    if (typeof showNotification === 'function') {
+        showNotification('Data imported successfully');
+    } else {
+        alert('Data imported successfully');
+    }
+}
+
+// Function to ensure UI is properly updated after import
+function updateUIAfterImport() {
+    console.log("Updating UI after import");
+    
+    // Update the main UI if the function exists
     if (typeof window.populateUI === 'function') {
         window.populateUI();
     }
     
-    // Show success message
-    showNotification('Data imported successfully');
+    // Make sure to update specific lists using the correct function names
+    if (typeof populatePeopleList === 'function') {
+        populatePeopleList();
+    } else if (typeof updatePersonsList === 'function') {
+        updatePersonsList();
+    }
+    
+    // Update meeting points list
+    if (typeof populateMeetingPointsList === 'function') {
+        populateMeetingPointsList();
+    }
+    
+    if (typeof populateGroupsList === 'function') {
+        populateGroupsList();
+    } else if (typeof updateGroupsList === 'function') {
+        updateGroupsList();
+    }
+    
+    if (typeof populateFamiliesList === 'function') {
+        populateFamiliesList();
+    } else if (typeof updateFamiliesList === 'function') {
+        updateFamiliesList();
+    }
+    
+    // If we're on the meeting points page, make sure it's visible
+    const meetingListSection = document.getElementById('meeting-list-section');
+    if (meetingListSection) {
+        // Trigger a page change event to ensure the list is refreshed
+        if (typeof triggerPageChangedEvent === 'function') {
+            triggerPageChangedEvent('meeting-list-section');
+        }
+    }
 }
 
-// Create map markers for imported data
+
+// Enhanced function to create markers for imported data
 function createMarkersForImportedData() {
     // Skip if map isn't initialized yet
     if (!window.map) {
@@ -865,45 +990,188 @@ function createMarkersForImportedData() {
     console.log('Creating markers for imported data');
     
     // Create markers for people
-    window.persons.forEach(person => {
-        if (!person.marker && person.lat && person.lng) {
-            const position = new google.maps.LatLng(person.lat, person.lng);
-            
-            if (typeof createPersonMarker === 'function') {
-                person.marker = createPersonMarker(position, person);
-            } else {
-                // Fallback if createPersonMarker isn't available
-                person.marker = new google.maps.Marker({
-                    position: position,
-                    map: window.map,
-                    title: person.name
-                });
+    if (window.persons && window.persons.length > 0) {
+        window.persons.forEach(person => {
+            if (!person.marker && person.lat && person.lng) {
+                try {
+                    const position = new google.maps.LatLng(
+                        parseFloat(person.lat), 
+                        parseFloat(person.lng)
+                    );
+                    
+                    if (typeof createPersonMarker === 'function') {
+                        person.marker = createPersonMarker(position, person);
+                        console.log(`Created marker for person: ${person.name}`);
+                    } else {
+                        // Fallback if createPersonMarker isn't available
+                        person.marker = new google.maps.Marker({
+                            position: position,
+                            map: window.map,
+                            title: person.name,
+                            draggable: true,
+                            animation: google.maps.Animation.DROP
+                        });
+                        console.log(`Created fallback marker for person: ${person.name}`);
+                        
+                        // Add click handler
+                        person.marker.addListener('click', function() {
+                            if (typeof showPersonInfoWindow === 'function') {
+                                showPersonInfoWindow(person, person.marker);
+                            } else if (typeof showPersonModal === 'function') {
+                                window.selectedPerson = person;
+                                showPersonModal(person);
+                            }
+                        });
+                    }
+                } catch (err) {
+                    console.error(`Error creating marker for person ${person.name}:`, err);
+                }
             }
-        }
-    });
+        });
+        
+        console.log(`Created markers for ${window.persons.length} people`);
+    }
     
     // Create markers for meeting points
-    window.meetingPoints.forEach(meeting => {
-        if (!meeting.marker && meeting.lat && meeting.lng) {
-            const position = new google.maps.LatLng(meeting.lat, meeting.lng);
-            
-            if (typeof createMeetingMarker === 'function') {
-                meeting.marker = createMeetingMarker(position, meeting);
-            } else {
-                // Fallback if createMeetingMarker isn't available
-                meeting.marker = new google.maps.Marker({
-                    position: position,
-                    map: window.map,
-                    title: meeting.name
-                });
+    if (window.meetingPoints && window.meetingPoints.length > 0) {
+        window.meetingPoints.forEach(meeting => {
+            if (!meeting.marker && meeting.lat && meeting.lng) {
+                try {
+                    const position = new google.maps.LatLng(
+                        parseFloat(meeting.lat), 
+                        parseFloat(meeting.lng)
+                    );
+                    
+                    if (typeof createMeetingMarker === 'function') {
+                        meeting.marker = createMeetingMarker(position, meeting);
+                        console.log(`Created marker for meeting: ${meeting.name}`);
+                    } else {
+                        // Fallback if createMeetingMarker isn't available
+                        meeting.marker = new google.maps.Marker({
+                            position: position,
+                            map: window.map,
+                            title: meeting.name,
+                            draggable: true,
+                            animation: google.maps.Animation.DROP,
+                            icon: {
+                                path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                                fillColor: '#0000ff',
+                                fillOpacity: 0.9,
+                                strokeWeight: 1,
+                                strokeColor: '#ffffff',
+                                scale: 6
+                            }
+                        });
+                        console.log(`Created fallback marker for meeting: ${meeting.name}`);
+                        
+                        // Add click handler
+                        meeting.marker.addListener('click', function() {
+                            if (typeof showMeetingInfoWindow === 'function') {
+                                showMeetingInfoWindow(meeting, meeting.marker);
+                            } else if (typeof showMeetingModal === 'function') {
+                                showMeetingModal(meeting);
+                            }
+                        });
+                    }
+                } catch (err) {
+                    console.error(`Error creating marker for meeting ${meeting.name}:`, err);
+                }
             }
-        }
-    });
+        });
+        
+        console.log(`Created markers for ${window.meetingPoints.length} meeting points`);
+    }
     
     // Fit map to show all markers
     if (typeof fitMapToMarkers === 'function') {
         fitMapToMarkers();
     }
+}
+
+
+// Function to ensure UI is properly updated after import
+function updateUIAfterImport() {
+    console.log("Updating UI after import");
+    
+    // Update the main UI if the function exists
+    if (typeof window.populateUI === 'function') {
+        window.populateUI();
+    }
+    
+    // Make sure to update specific lists
+    if (typeof populatePeopleList === 'function') {
+        populatePeopleList();
+    }
+    
+    if (typeof populateMeetingPointsList === 'function') {
+        populateMeetingPointsList();
+    } else if (typeof updateMeetingsList === 'function') {
+        updateMeetingsList();
+    }
+    
+    if (typeof populateGroupsList === 'function') {
+        populateGroupsList();
+    }
+    
+    if (typeof populateFamiliesList === 'function') {
+        populateFamiliesList();
+    }
+    
+    // If we're on the meeting points page, make sure it's visible
+    const meetingListSection = document.getElementById('meeting-list-section');
+    if (meetingListSection) {
+        // Trigger a page change event to ensure the list is refreshed
+        if (typeof triggerPageChangedEvent === 'function') {
+            triggerPageChangedEvent('meeting-list-section');
+        }
+    }
+}
+
+
+// Add a debugging function to help troubleshoot
+function debugMeetingPoints() {
+    console.log("======= MEETING POINTS DEBUG =======");
+    
+    if (!window.meetingPoints) {
+        console.error("meetingPoints array is undefined!");
+        return;
+    }
+    
+    console.log(`Total meeting points: ${window.meetingPoints.length}`);
+    
+    if (window.meetingPoints.length > 0) {
+        console.log("First meeting point sample:", window.meetingPoints[0]);
+        
+        // Check localStorage
+        const storedPoints = localStorage.getItem('meetingPoints');
+        if (storedPoints) {
+            try {
+                const parsedPoints = JSON.parse(storedPoints);
+                console.log(`Meeting points in localStorage: ${parsedPoints.length}`);
+            } catch (e) {
+                console.error("Error parsing meetingPoints from localStorage:", e);
+            }
+        } else {
+            console.warn("No meetingPoints found in localStorage");
+        }
+        
+        // Check UI elements
+        const meetingList = document.getElementById('meeting-list');
+        if (meetingList) {
+            console.log(`Meeting list items: ${meetingList.children.length}`);
+        } else {
+            console.warn("meeting-list element not found in DOM");
+        }
+        
+        const meetingTableBody = document.getElementById('meeting-table-body');
+        if (meetingTableBody) {
+            console.log(`Meeting table rows: ${meetingTableBody.children.length}`);
+        } else {
+            console.warn("meeting-table-body element not found in DOM");
+        }
+    }
+    
+    console.log("===================================");
 }
 
 // Show notification
@@ -1094,3 +1362,55 @@ function clearAllData() {
         showNotification('All data has been cleared. A backup was created.');
     }
 }    
+
+// Function to import data from a file
+function importData() {
+    console.log('Importing data');
+    
+    // Get the import file input element
+    const importFileInput = document.getElementById('import-file');
+    if (!importFileInput || importFileInput.files.length === 0) {
+        showNotification('Please select a file to import', 'warning');
+        return;
+    }
+    
+    // Get the file
+    const file = importFileInput.files[0];
+    
+    // Check if it's a JSON file
+    if (!file.name.endsWith('.json')) {
+        showNotification('Only JSON files are supported for import', 'warning');
+        return;
+    }
+    
+    // Read the file content
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const importedData = JSON.parse(e.target.result);
+            
+            // Get import options
+            const importType = document.getElementById('import-type').value;
+            const importOverwrite = document.getElementById('import-overwrite').checked;
+            const importMerge = document.getElementById('import-merge').checked;
+            
+            // Show preview
+            previewImportFile(file, importType);
+        } catch (error) {
+            console.error('Error parsing import file:', error);
+            showNotification('Error: Invalid JSON format', 'error');
+        }
+    };
+    
+    reader.onerror = function() {
+        console.error('Error reading file');
+        showNotification('Error reading file', 'error');
+    };
+    
+    // Start reading the file
+    reader.readAsText(file);
+}
+
+// Add this function to the window object to make it globally available
+window.importData = importData;
+window.confirmImport = confirmImport;

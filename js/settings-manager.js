@@ -74,54 +74,84 @@ function saveConfig() {
     localStorage.setItem('mapAppConfig', JSON.stringify(appConfig));
 }
 
-// Apply current configuration to UI elements
+// Apply current configuration to UI elements with safety checks
 function applyConfigToUI() {
-    // Set appearance tab values
-    document.getElementById('person-icon-select').value = appConfig.appearance.person.icon;
-    document.getElementById('person-color').value = appConfig.appearance.person.color;
-    document.getElementById('meeting-icon-select').value = appConfig.appearance.meeting.icon;
-    document.getElementById('meeting-color').value = appConfig.appearance.meeting.color;
-    document.getElementById('group-icon-select').value = appConfig.appearance.group.style;
+    // Set appearance tab values with safety checks
+    safelySetValue('person-icon-select', appConfig.appearance.person.icon);
+    safelySetValue('person-color', appConfig.appearance.person.color);
+    safelySetValue('meeting-icon-select', appConfig.appearance.meeting.icon);
+    safelySetValue('meeting-color', appConfig.appearance.meeting.color);
+    safelySetValue('group-icon-select', appConfig.appearance.group.style);
     
-    // Set auto-grouping tab values
-    document.getElementById('distance-threshold').value = appConfig.autoGrouping.distanceThreshold;
-    document.getElementById('min-group-size').value = appConfig.autoGrouping.minGroupSize;
-    document.getElementById('max-group-size').value = appConfig.autoGrouping.maxGroupSize || 20;
-    document.getElementById('min-elders').value = appConfig.autoGrouping.requirements.minElders;
-    document.getElementById('min-servants').value = appConfig.autoGrouping.requirements.minServants;
-    document.getElementById('min-pioneers').value = appConfig.autoGrouping.requirements.minPioneers;
-    document.getElementById('min-leaders').value = appConfig.autoGrouping.requirements.minLeaders;
-    document.getElementById('min-helpers').value = appConfig.autoGrouping.requirements.minHelpers;
-    document.getElementById('keep-families-together').checked = 
-    appConfig.autoGrouping.keepFamiliesTogether !== undefined ? 
-    appConfig.autoGrouping.keepFamiliesTogether : true;
-    document.getElementById('min-publishers').value = appConfig.autoGrouping.requirements.minPublishers || 0;
-
+    // Set auto-grouping tab values with safety checks
+    safelySetValue('distance-threshold', appConfig.autoGrouping.distanceThreshold);
+    safelySetValue('min-group-size', appConfig.autoGrouping.minGroupSize);
+    safelySetValue('max-group-size', appConfig.autoGrouping.maxGroupSize || 20);
+    safelySetValue('min-elders', appConfig.autoGrouping.requirements.minElders);
+    safelySetValue('min-servants', appConfig.autoGrouping.requirements.minServants);
+    safelySetValue('min-pioneers', appConfig.autoGrouping.requirements.minPioneers);
+    safelySetValue('min-leaders', appConfig.autoGrouping.requirements.minLeaders);
+    safelySetValue('min-helpers', appConfig.autoGrouping.requirements.minHelpers);
+    
+    // Check if the checkbox exists before setting its value
+    const keepFamiliesCheckbox = document.getElementById('keep-families-together');
+    if (keepFamiliesCheckbox) {
+        keepFamiliesCheckbox.checked = 
+            appConfig.autoGrouping.keepFamiliesTogether !== undefined ? 
+            appConfig.autoGrouping.keepFamiliesTogether : true;
+    }
+    
+    safelySetValue('min-publishers', appConfig.autoGrouping.requirements.minPublishers || 0);
+}
+// Helper function to safely set a value on an element if it exists
+function safelySetValue(elementId, value) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.value = value;
+    } else {
+        console.log(`Element with ID '${elementId}' not found.`);
+    }
 }
 
-// Read configuration from UI elements
+// Similarly, update the readConfigFromUI function
 function readConfigFromUI() {
-    // Read appearance tab values
-    appConfig.appearance.person.icon = document.getElementById('person-icon-select').value;
-    appConfig.appearance.person.color = document.getElementById('person-color').value;
-    appConfig.appearance.meeting.icon = document.getElementById('meeting-icon-select').value;
-    appConfig.appearance.meeting.color = document.getElementById('meeting-color').value;
-    appConfig.appearance.group.style = document.getElementById('group-icon-select').value;
+    // Read appearance tab values with safety checks
+    appConfig.appearance.person.icon = safelyGetValue('person-icon-select', appConfig.appearance.person.icon);
+    appConfig.appearance.person.color = safelyGetValue('person-color', appConfig.appearance.person.color);
+    appConfig.appearance.meeting.icon = safelyGetValue('meeting-icon-select', appConfig.appearance.meeting.icon);
+    appConfig.appearance.meeting.color = safelyGetValue('meeting-color', appConfig.appearance.meeting.color);
+    appConfig.appearance.group.style = safelyGetValue('group-icon-select', appConfig.appearance.group.style);
     
-    // Read auto-grouping tab values
-    appConfig.autoGrouping.distanceThreshold = parseFloat(document.getElementById('distance-threshold').value);
-    appConfig.autoGrouping.minGroupSize = parseInt(document.getElementById('min-group-size').value);
-    appConfig.autoGrouping.maxGroupSize = parseInt(document.getElementById('max-group-size').value);
-    appConfig.autoGrouping.maxGroupSizeDifference = parseInt(document.getElementById('max-group-size-difference').value);
-    appConfig.autoGrouping.keepFamiliesTogether = document.getElementById('keep-families-together').checked;
-    appConfig.autoGrouping.requirements.minPublishers = parseInt(document.getElementById('min-publishers').value || '0');
-    appConfig.autoGrouping.requirements.minElders = parseInt(document.getElementById('min-elders').value);
-    appConfig.autoGrouping.requirements.minServants = parseInt(document.getElementById('min-servants').value);
-    appConfig.autoGrouping.requirements.minPioneers = parseInt(document.getElementById('min-pioneers').value);
-    appConfig.autoGrouping.requirements.minLeaders = parseInt(document.getElementById('min-leaders').value);
-    appConfig.autoGrouping.requirements.minHelpers = parseInt(document.getElementById('min-helpers').value);
+    // Read auto-grouping tab values with safety checks
+    appConfig.autoGrouping.distanceThreshold = parseFloat(safelyGetValue('distance-threshold', appConfig.autoGrouping.distanceThreshold));
+    appConfig.autoGrouping.minGroupSize = parseInt(safelyGetValue('min-group-size', appConfig.autoGrouping.minGroupSize));
+    appConfig.autoGrouping.maxGroupSize = parseInt(safelyGetValue('max-group-size', appConfig.autoGrouping.maxGroupSize));
     
+    // Only try to get the value if the element exists
+    const maxGroupSizeDifferenceElement = document.getElementById('max-group-size-difference');
+    if (maxGroupSizeDifferenceElement) {
+        appConfig.autoGrouping.maxGroupSizeDifference = parseInt(maxGroupSizeDifferenceElement.value);
+    }
+    
+    // For checkbox element, check if it exists
+    const keepFamiliesTogether = document.getElementById('keep-families-together');
+    if (keepFamiliesTogether) {
+        appConfig.autoGrouping.keepFamiliesTogether = keepFamiliesTogether.checked;
+    }
+    
+    // Read requirements with safety checks
+    appConfig.autoGrouping.requirements.minPublishers = parseInt(safelyGetValue('min-publishers', appConfig.autoGrouping.requirements.minPublishers || 0));
+    appConfig.autoGrouping.requirements.minElders = parseInt(safelyGetValue('min-elders', appConfig.autoGrouping.requirements.minElders));
+    appConfig.autoGrouping.requirements.minServants = parseInt(safelyGetValue('min-servants', appConfig.autoGrouping.requirements.minServants));
+    appConfig.autoGrouping.requirements.minPioneers = parseInt(safelyGetValue('min-pioneers', appConfig.autoGrouping.requirements.minPioneers));
+    appConfig.autoGrouping.requirements.minLeaders = parseInt(safelyGetValue('min-leaders', appConfig.autoGrouping.requirements.minLeaders));
+    appConfig.autoGrouping.requirements.minHelpers = parseInt(safelyGetValue('min-helpers', appConfig.autoGrouping.requirements.minHelpers));
+}
 
+// Helper function to safely get a value from an element if it exists
+function safelyGetValue(elementId, defaultValue) {
+    const element = document.getElementById(elementId);
+    return element ? element.value : defaultValue;
 }
 
 // Reset configuration to defaults
@@ -284,50 +314,121 @@ function setupConfigTabs() {
     });
 }
 
-// Initialize configuration-related event listeners
+// Initialize configuration-related event listeners with safety checks
 function initConfigListeners() {
     // Open configuration modal
-    document.getElementById('open-config').addEventListener('click', () => {
-        // Make sure UI reflects current config
-        applyConfigToUI();
-        document.getElementById('config-modal').style.display = 'flex';
-    });
+    const openConfigBtn = document.getElementById('open-config');
+    if (openConfigBtn) {
+        openConfigBtn.addEventListener('click', () => {
+            // Make sure UI reflects current config
+            applyConfigToUI();
+            const configModal = document.getElementById('config-modal');
+            if (configModal) {
+                configModal.style.display = 'flex';
+            }
+        });
+    }
     
     // Save configuration
-    document.getElementById('save-config').addEventListener('click', () => {
-        // Read values from UI
-        readConfigFromUI();
-        
-        // Save to local storage
-        saveConfig();
-        
-        // Apply changes to all existing markers
-        updateMarkerColors();
-        
-        // Close modal
-        document.getElementById('config-modal').style.display = 'none';
-    });
+    const saveConfigBtn = document.getElementById('save-config');
+    if (saveConfigBtn) {
+        saveConfigBtn.addEventListener('click', () => {
+            // Read values from UI
+            readConfigFromUI();
+            
+            // Save to local storage
+            saveConfig();
+            
+            // Apply changes to all existing markers
+            if (typeof updateMarkerColors === 'function') {
+                updateMarkerColors();
+            }
+            
+            // Close modal
+            const configModal = document.getElementById('config-modal');
+            if (configModal) {
+                configModal.style.display = 'none';
+            }
+        });
+    }
     
     // Cancel configuration changes
-    document.getElementById('cancel-config').addEventListener('click', () => {
-        // Revert to saved config without saving
-        applyConfigToUI();
-        document.getElementById('config-modal').style.display = 'none';
-    });
+    const cancelConfigBtn = document.getElementById('cancel-config');
+    if (cancelConfigBtn) {
+        cancelConfigBtn.addEventListener('click', () => {
+            // Revert to saved config without saving
+            applyConfigToUI();
+            const configModal = document.getElementById('config-modal');
+            if (configModal) {
+                configModal.style.display = 'none';
+            }
+        });
+    }
     
     // Reset to defaults
-    document.getElementById('reset-config').addEventListener('click', () => {
-        if (confirm('Are you sure you want to reset all settings to defaults?')) {
-            resetConfig();
-        }
-    });
+    const resetConfigBtn = document.getElementById('reset-config');
+    if (resetConfigBtn) {
+        resetConfigBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to reset all settings to defaults?')) {
+                resetConfig();
+            }
+        });
+    }
     
     // Setup tabs in the configuration modal
     setupConfigTabs();
 }
 
-// Load configuration when the application starts
+// Also update the setupConfigTabs function to check for elements
+function setupConfigTabs() {
+    const tabButtons = document.querySelectorAll('#config-modal .tab-button');
+    
+    if (tabButtons.length === 0) {
+        console.log('No tab buttons found for config modal');
+        return;
+    }
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove active class from all buttons and content
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('#config-modal .tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Add active class to clicked button and corresponding content
+            button.classList.add('active');
+            const tabId = button.getAttribute('data-tab');
+            const tabContent = document.getElementById(tabId);
+            if (tabContent) {
+                tabContent.classList.add('active');
+            }
+        });
+    });
+}
+
+// Update the DOMContentLoaded event handler
 document.addEventListener('DOMContentLoaded', () => {
-    loadConfig();
-    initConfigListeners();
+    // Check if configuration is available before loading it
+    try {
+        loadConfig();
+    } catch (e) {
+        console.error('Error loading config:', e);
+        // If loading fails, use defaults
+        appConfig = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+    }
+    
+    // Check if necessary DOM elements exist before initializing listeners
+    const configElements = ['open-config', 'save-config', 'cancel-config', 'reset-config'];
+    const allExist = configElements.every(id => document.getElementById(id) !== null);
+    
+    // Only initialize if all required elements exist
+    if (allExist) {
+        initConfigListeners();
+    } else {
+        console.log('Not all config UI elements exist, skipping initConfigListeners');
+        
+        // If some elements exist but not all, we can try to create them
+        // or just skip initialization until the full UI is ready
+    }
 });

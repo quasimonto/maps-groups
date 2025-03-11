@@ -989,3 +989,166 @@ function updateAvailableMeetingsList(group) {
         container.appendChild(item);
     });
 }
+
+// Add this function to js/group-manager.js
+
+// Auto create groups based on proximity
+function autoCreateGroups() {
+    console.log('Auto creating groups');
+    
+    // Check if we have enough people
+    if (window.persons.length < appConfig.autoGrouping.minGroupSize) {
+        alert(`Need at least ${appConfig.autoGrouping.minGroupSize} people to create groups`);
+        return;
+    }
+    
+    // First, remove any existing groups
+    const confirmRemove = confirm('This will remove all existing groups. Continue?');
+    if (!confirmRemove) return;
+    
+    // Remove all group assignments
+    window.persons.forEach(person => {
+        person.group = null;
+        updatePersonMarker(person);
+    });
+    
+    window.meetingPoints.forEach(meeting => {
+        meeting.group = null;
+        if (typeof updateMeetingMarker === 'function') {
+            updateMeetingMarker(meeting);
+        }
+    });
+    
+    // Remove all groups
+    window.groups = [];
+    
+    // Show loading indicator
+    if (typeof showGroupingLoadingIndicator === 'function') {
+        showGroupingLoadingIndicator();
+    }
+    
+    // Group people based on proximity
+    const newGroups = createGroupsByProximity();
+    
+    // Create the actual groups
+    newGroups.forEach(groupData => {
+        // Create a new group
+        const group = {
+            id: 'group_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+            name: groupData.name,
+            color: groupData.color
+        };
+        
+        // Add to global array
+        window.groups.push(group);
+        
+        // Assign people to this group
+        groupData.members.forEach(person => {
+            person.group = group.id;
+            updatePersonMarker(person);
+        });
+    });
+    
+    // Save data
+    if (typeof saveData === 'function') {
+        saveData();
+    }
+    
+    // Update UI
+    populateGroupsList();
+    
+    // Hide loading indicator
+    if (typeof hideGroupingLoadingIndicator === 'function') {
+        hideGroupingLoadingIndicator();
+    }
+    
+    // Show success message
+    alert(`Created ${newGroups.length} groups successfully`);
+}
+
+// Create groups based on proximity
+function createGroupsByProximity() {
+    // Copy the persons array so we can modify it
+    let remainingPersons = [...window.persons];
+    
+    // Groups array
+    const groups = [];
+    
+    // Create groups while we have enough people left
+    while (remainingPersons.length >= appConfig.autoGrouping.minGroupSize) {
+        // Select a random person as a seed
+        const randomIndex = Math.floor(Math.random() * remainingPersons.length);
+        const seedPerson = remainingPersons[randomIndex];
+        
+        // Create a new group with this person
+        const group = {
+            name: `Group ${groups.length + 1}`,
+            color: getRandomColor(),
+            members: [seedPerson]
+        };
+        
+        // Remove seed from remaining people
+        remainingPersons.splice(randomIndex, 1);
+        
+        // Find nearby people (within threshold distance)
+        const nearbyPersons = [];
+        
+        // Calculate distance threshold in degrees (roughly)
+        // 1 degree = ~111 km, so dividing kilometers by 111 gives approximate degrees
+        const distanceThreshold = appConfig.autoGrouping.distanceThreshold / 111;
+        
+        // Find the closest people to our seed
+        for (let i = remainingPersons.length - 1; i >= 0; i--) {
+            const person = remainingPersons[i];
+            
+            // Calculate distance
+            const distance = calculateDistance(
+                seedPerson.lat, seedPerson.lng,
+                person.lat, person.lng
+            );
+            
+            // If within threshold, add to group
+            if (distance <= distanceThreshold) {
+                nearbyPersons.push({
+                    person: person,
+                    distance: distance
+                });
+            }
+        }
+        
+        // Sort by distance (closest first)
+        nearbyPersons.sort((a, b) => a.distance - b.distance);
+        
+        // Add up to maxGroupSize (or all nearby persons if less)
+        const maxToAdd = Math.min(
+            nearbyPersons.length,
+            appConfig.autoGrouping.maxGroupSize - 1 // -1 because we already added the seed
+        );
+        
+        for (let i = 0; i < maxToAdd; i++) {
+            const person = nearbyPersons[i].person;
+            group.members.push(person);
+            
+            // Remove from remaining people
+            const idx = remainingPersons.indexOf(person);
+            if (idx !== -1) {
+                remainingPersons.splice(idx, 1);
+            }
+        }
+        
+        // Add the group if it meets minimum size
+        if (group.members.length >= appConfig.autoGrouping.minGroupSize) {
+            groups.push(group);
+        } else {
+            // Put the seed person back if the group didn't meet minimum size
+            remainingPersons.push(seedPerson);
+        }
+        
+        // Break the loop if we can't form any more valid groups
+        if (remainingPersons.length < appConfig.autoGrouping.minGroupSize) {
+            break;
+        }
+    }
+    
+    return groups;
+}
